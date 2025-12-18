@@ -1,0 +1,48 @@
+{% extends 'clinic/base.html' %}
+
+{% block content %}
+<div style="padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2>📅 График работы врачей</h2>
+        <a href="{% url 'add_schedule' %}" style="background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">+ Добавить график</a>
+    </div>
+    <hr>
+
+    <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse; background: white;">
+        <thead style="background: #eee;">
+            <tr>
+                <th>Врач</th>
+                <th>Специальность</th>
+                <th>День</th>
+                <th>Время</th>
+                <th>Интервал</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sch in schedules %}
+            <tr>
+                <td><strong>{{ sch.doctor.lname }} {{ sch.doctor.fname }}</strong></td>
+                <td>{{ sch.doctor.specialization }}</td>
+                <td>{{ sch.get_day_display }}</td>
+                <td>{{ sch.time_start }} - {{ sch.time_end }}</td>
+                <td>{{ sch.interval }}</td>
+                <td>
+                    <a href="{% url 'edit_schedule' sch.id %}" style="text-decoration: none;">✏️ Изм.</a>
+                    &nbsp;|&nbsp;
+                    <form action="{% url 'delete_schedule' sch.id %}" method="post" style="display:inline;" onsubmit="return confirm('Удалить этот график?');">
+                        {% csrf_token %}
+                        <button type="submit" style="color: red; border: none; background: none; cursor: pointer;">🗑 Удалить</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">Расписания пока нет.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <br>
+    <a href="{% url 'profile' %}">← Назад в меню</a>
+</div>
+{% endblock %}

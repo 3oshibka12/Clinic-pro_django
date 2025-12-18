@@ -1,0 +1,39 @@
+{% extends 'clinic/base.html' %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <div style="background-color: #e3f2fd; padding: 20px; border-radius: 8px; border-left: 5px solid #0d6efd;">
+        <h2>📊 Кабинет Аналитика</h2>
+        <p>Отчет по загруженности врачей за текущий месяц.</p>
+        
+        <table border="1" cellpadding="15" style="border-collapse: collapse; width: 100%; background: white; margin-top: 20px;">
+            <thead style="background-color: #0d6efd; color: white;">
+                <tr>
+                    <th>Врач</th>
+                    <th>Специализация</th>
+                    <th>Кол-во приемов</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in stats %}
+                <tr>
+                    <td><strong>{{ row.lname }} {{ row.fname }}</strong></td>
+                    <td>{{ row.specialization }}</td>
+                    <td style="text-align: center; font-size: 1.2em;">
+                        {{ row.appointment_count }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" style="text-align: center;">Данных за этот месяц нет.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="{% url 'logout' %}">Выйти</a>
+    </div>
+</div>
+{% endblock %}

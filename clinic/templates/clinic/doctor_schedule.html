@@ -1,0 +1,156 @@
+{% extends 'clinic/base.html' %}
+
+{% block content %}
+<style>
+    /* --- Карточка профиля врача --- */
+    .doctor-header {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+    }
+    
+    .doctor-avatar {
+        width: 100px;
+        height: 100px;
+        background-color: #e3f2fd;
+        color: var(--primary);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 3rem;
+        border: 3px solid var(--accent);
+    }
+
+    .doctor-info { flex: 1; }
+    .doctor-info h1 { margin: 0 0 10px 0; color: var(--dark); }
+    .doctor-info p { margin: 5px 0; color: #666; font-size: 1.1rem; }
+    .badge {
+        display: inline-block;
+        background: #e9ecef;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #495057;
+    }
+
+    /* --- Сетка расписания --- */
+    .schedule-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .day-card {
+        background: white;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        border-top: 5px solid var(--accent); /* Цветная полоска сверху */
+        transition: transform 0.2s;
+    }
+    .day-card:hover { transform: translateY(-3px); }
+
+    .day-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--primary);
+        margin-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+    }
+
+    .time-slot {
+        font-size: 1.4rem;
+        font-weight: bold;
+        color: var(--dark);
+    }
+    
+    .interval-info {
+        color: gray;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+
+    /* --- Кнопка действия --- */
+    .action-area {
+        margin-left: auto; /* Прижимает вправо на десктопе */
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 200px;
+    }
+
+    @media (max-width: 768px) {
+        .doctor-header { flex-direction: column; text-align: center; }
+        .action-area { width: 100%; margin: 0; }
+    }
+</style>
+
+<div style="max-width: 1000px; margin: 40px auto; padding: 0 20px;">
+
+    <!-- 1. Шапка с инфо о враче -->
+    <div class="doctor-header">
+        <div class="doctor-avatar">
+            👨‍⚕️
+        </div>
+        <div class="doctor-info">
+            <h1>{{ doctor.full_name }}</h1>
+            <p style="color: var(--accent); font-weight: bold;">{{ doctor.specialization }}</p>
+            <div style="margin-top: 10px;">
+                <span class="badge">📍 Участок: {{ doctor.region }}</span>
+            </div>
+        </div>
+        
+        <div class="action-area">
+            {% if user.is_authenticated and not user.doctor %}
+                <!-- Если это пациент (или админ/менеджер) -->
+                <a href="{% url 'doctor_booking' doctor.id_doc %}" class="btn btn-success" style="text-align: center; padding: 15px;">
+                    📅 Записаться онлайн
+                </a>
+            {% elif not user.is_authenticated %}
+                <a href="{% url 'login' %}" class="btn btn-outline" style="text-align: center;">
+                    Войдите для записи
+                </a>
+            {% endif %}
+            
+            <a href="{% url 'doctor_list' %}" style="text-align: center; color: gray; text-decoration: none; margin-top: 5px;">
+                ← К списку врачей
+            </a>
+        </div>
+    </div>
+
+    <!-- 2. Расписание (Сетка) -->
+    <h2 style="margin-bottom: 20px; color: var(--dark);">График работы</h2>
+    
+    {% if schedule_items %}
+        <div class="schedule-grid">
+            {% for item in schedule_items %}
+            <div class="day-card">
+                <div class="day-title">
+                    {{ item.get_day_display }}
+                </div>
+                <div class="time-slot">
+                    {{ item.time_start|time:"H:i" }} — {{ item.time_end|time:"H:i" }}
+                </div>
+                <div class="interval-info">
+                    ⏱ Прием: каждые {{ item.interval }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 40px; background: white; border-radius: 8px;">
+            <p style="color: gray; font-size: 1.2rem;">На данный момент график работы не заполнен.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

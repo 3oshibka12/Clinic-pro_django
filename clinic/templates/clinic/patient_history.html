@@ -1,0 +1,71 @@
+{% extends 'clinic/base.html' %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 40px auto; padding: 20px;">
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2>📂 Медицинская история</h2>
+        <a href="{% url 'profile' %}" class="btn btn-outline">← Назад в профиль</a>
+    </div>
+
+    {% if history %}
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            {% for appt in history %}
+            <div style="background: white; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); overflow: hidden; border-left: 5px solid #6c757d;">
+                
+                <!-- Заголовок карточки (Дата и Врач) -->
+                <div style="padding: 20px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    <div>
+                        <div style="font-size: 1.2rem; font-weight: bold; color: #333;">
+                            {{ appt.visit_time|date:"d E Y" }} <span style="color: gray; font-size: 0.9em;">в {{ appt.visit_time|date:"H:i" }}</span>
+                        </div>
+                        <div style="color: #007bff; margin-top: 5px;">
+                            👨‍⚕️ {{ appt.doctor_info }}
+                        </div>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 5px 10px; border-radius: 15px; font-size: 0.9rem; color: gray;">
+                        Архив
+                    </div>
+                </div>
+
+                <!-- Тело карточки (Рецепт) -->
+                <div style="padding: 20px;">
+                    {% if appt.diagnosis %}
+                        <h4 style="margin: 0 0 10px 0; color: #28a745;">💊 Назначенное лечение:</h4>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 150px; color: gray;">Диагноз:</td>
+                                <td><strong>{{ appt.diagnosis }}</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="color: gray;">Препарат:</td>
+                                <td>{{ appt.drug_name }}</td>
+                            </tr>
+                            <tr>
+                                <td style="color: gray;">Схема:</td>
+                                <td>{{ appt.frequency }} раз(а) в день, {{ appt.duration }}</td>
+                            </tr>
+                            {% if appt.treatment %}
+                            <tr>
+                                <td style="color: gray;">Рекомендации:</td>
+                                <td>{{ appt.treatment }}</td>
+                            </tr>
+                            {% endif %}
+                        </table>
+                    {% else %}
+                        <p style="color: gray; margin: 0;">Врач не оставил записей о лечении в системе.</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 50px; background: white; border-radius: 10px; color: gray;">
+            <i class="fa-solid fa-folder-open" style="font-size: 3rem; margin-bottom: 20px; display: block;"></i>
+            <h3>История посещений пуста</h3>
+            <p>Здесь будут отображаться ваши прошедшие визиты и назначения врачей.</p>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

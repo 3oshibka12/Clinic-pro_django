@@ -1,0 +1,34 @@
+<!-- clinic/templates/clinic/profile_manager.html -->
+{% extends 'clinic/base.html' %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <div style="background-color: #f8f9fa; padding: 30px; border-radius: 10px; text-align: center;">
+        <h2>🛠 Панель управления Регистратора</h2>
+        <p>Выберите раздел для работы:</p>
+        
+        <div style="display: flex; gap: 20px; justify-content: center; margin-top: 30px;">
+            <!-- Карточка 1 -->
+            <a href="{% url 'manager_schedules' %}" style="text-decoration: none; color: inherit;">
+                <div style="border: 1px solid #007bff; border-radius: 8px; padding: 20px; width: 200px; background: white; transition: 0.3s; cursor: pointer;">
+                    <h1 style="color: #007bff;">📅</h1>
+                    <h3>Расписания врачей</h3>
+                    <p style="color: gray;">Просмотр, добавление и изменение графиков работы.</p>
+                </div>
+            </a>
+
+            <!-- Карточка 2 -->
+            <a href="{% url 'manager_appointments' %}" style="text-decoration: none; color: inherit;">
+                <div style="border: 1px solid #28a745; border-radius: 8px; padding: 20px; width: 200px; background: white; transition: 0.3s; cursor: pointer;">
+                    <h1 style="color: #28a745;">users</h1> <!-- или иконка людей -->
+                    <h3>Записи на прием</h3>
+                    <p style="color: gray;">Управление записями пациентов, перенос и отмена.</p>
+                </div>
+            </a>
+        </div>
+        
+        <br><br>
+        <a href="{% url 'admin:index' %}" style="color: gray;">Перейти в Django Admin</a>
+    </div>
+</div>
+{% endblock %}

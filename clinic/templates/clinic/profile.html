@@ -1,0 +1,151 @@
+{% extends 'clinic/base.html' %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; padding: 20px;">
+
+         <!-- 1. ИНТЕРФЕЙС МЕНЕДЖЕРА (Персонал) -->
+    {% if role == 'manager' %}
+        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+            <h2>🛠 Кабинет Менеджера</h2>
+            <p>Вы вошли как персонал. <a href="{% url 'admin:index' %}">Перейти в Админку</a></p>
+            
+            <a href="{% url 'add_schedule' %}" style="display:inline-block; margin: 10px 0; padding: 10px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 4px;">
+                + Управление расписанием
+            </a>
+
+            <h3>Последние изменения в расписании:</h3>
+            <ul>
+                {% for sch in schedules %}
+                    <li>{{ sch.doctor.lname }} — {{ sch.get_day_display }} ({{ sch.time_start }} - {{ sch.time_end }})</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+
+         <!-- 2. ИНТЕРФЕЙС ВРАЧА -->
+         {% elif role == 'doctor' %}
+         <div style="background-color: #f1f8ff; padding: 25px; border-radius: 10px; border: 1px solid #cce5ff;">
+             
+             <div style="display: flex; justify-content: space-between; align-items: center;">
+                 <div>
+                     <h2>Кабинет Врача</h2>
+                     <p style="margin: 0;"><strong>{{ doctor.full_name }}</strong> ({{ doctor.specialization }})</p>
+                 </div>
+                 
+                 <!-- КНОПКА ПЕРЕХОДА В КАЛЕНДАРЬ -->
+                 <a href="{% url 'doctor_calendar' %}" class="btn" style="background: white; color: #0056b3; border: 1px solid #0056b3;">
+                     📅 Открыть журнал записей
+                 </a>
+             </div>
+             
+             <hr style="margin: 20px 0;">
+ 
+             <h3 style="color: #0056b3;">⚡️ План на сегодня ({{ now|date:"d E" }}):</h3>
+             
+             {% if appointments_today %}
+                 <ul style="list-style: none; padding: 0;">
+                 {% for appt in appointments_today %}
+                     <!-- Подсвечиваем ближайший прием (если время > сейчас) -->
+                     {% now "Y-m-d H:i" as current_time %}
+                     
+                     <li style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 6px; 
+                                box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+                                border-left: 5px solid {% if appt.visit_time|date:'Y-m-d H:i' < current_time %}#6c757d{% else %}#28a745{% endif %};">
+                         <div style="display: flex; justify-content: space-between; align-items: center;">
+                             <div>
+                                 <strong style="font-size: 1.2em;">{{ appt.visit_time|date:"H:i" }}</strong>
+                                 <span style="margin-left: 10px;">{{ appt.patient.full_name }}</span>
+                             </div>
+                             
+                             <!-- Быстрая кнопка рецепта -->
+                             {% if appt.get_prescription %}
+                                 <a href="{% url 'add_prescription' appt.id_rec %}" style="text-decoration: none;">✏️</a>
+                             {% else %}
+                                 <a href="{% url 'add_prescription' appt.id_rec %}" style="text-decoration: none;">💊</a>
+                             {% endif %}
+                         </div>
+                     </li>
+                 {% endfor %}
+                 </ul>
+             {% else %}
+                 <div style="text-align: center; padding: 30px; background: white; border-radius: 8px; color: gray;">
+                     На сегодня приемов больше нет. Отдохните! ☕
+                 </div>
+             {% endif %}
+         </div>
+
+
+         <!-- 3. ИНТЕРФЕЙС ПАЦИЕНТА -->
+    <!-- clinic/templates/clinic/profile.html -->
+
+    {% elif role == 'patient' %}
+        <div style="background-color: #fff3cd; padding: 25px; border-radius: 10px; border: 1px solid #ffeeba;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h2>Личный кабинет</h2>
+                    <p style="margin: 0;"><strong>{{ patient.fname }} {{ patient.lname }}</strong> (Участок №{{ patient.region }})</p>
+                </div>
+                
+                <!-- Кнопка Истории -->
+                <a href="{% url 'patient_history' %}" class="btn" style="background: white; color: #333; border: 1px solid #ccc;">
+                    📂 Моя история болезни
+                </a>
+            </div>
+
+            <hr style="margin: 20px 0; border-top: 1px solid #e6dbb9;">
+
+            <div style="margin-bottom: 20px;">
+                <a href="{% url 'find_doctor' %}" class="btn btn-primary" style="font-weight: bold; width: 100%; box-sizing: border-box; text-align: center;">
+                    + Записаться на новый прием
+                </a>
+            </div>
+
+            <h3 style="color: #856404;">⏳ Ближайшие записи:</h3>
+            
+            {% if my_appointments %}
+                <ul style="list-style: none; padding: 0;">
+                {% for appt in my_appointments %}
+                    <li style="background: white; padding: 20px; margin-bottom: 15px; border-radius: 8px; border-left: 5px solid #ffc107; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            
+                            <!-- Инфо -->
+                            <div>
+                                <div style="font-size: 1.2em; font-weight: bold; color: #333; margin-bottom: 5px;">
+                                    {{ appt.visit_time|date:"d E (l) в H:i" }}
+                                </div>
+                                <div>👨‍⚕️ {{ appt.doctor_info }}</div>
+                                <div style="color: gray;">🚪 Кабинет: {{ appt.cabinet }}</div>
+                            </div>
+
+                            <!-- Кнопка отмены -->
+                            <form action="{% url 'cancel_appointment' appt.id_rec %}" method="post" onsubmit="return confirm('Отменить эту запись?');">
+                                {% csrf_token %}
+                                <button type="submit" style="background: white; border: 1px solid #dc3545; color: #dc3545; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                                    ❌ Отменить
+                                </button>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p style="color: #856404;">У вас нет предстоящих приемов.</p>
+            {% endif %}
+        </div>
+
+
+         <!-- 4. ОШИБКА / НЕТ РОЛИ -->
+    {% else %}
+        <div style="padding: 20px; border: 2px solid red; color: red; background: #fff0f0; border-radius: 8px;">
+            <h3>📛 Ошибка доступа</h3>
+            <p>Ваш профиль не связан ни с врачом, ни с пациентом.</p>
+            <p>Обратитесь к администратору.</p>
+        </div>
+    {% endif %} 
+    
+    <div style="margin-top: 30px; text-align: center;">
+        <a href="{% url 'logout' %}" style="color: #6c757d; text-decoration: underline;">Выйти из аккаунта</a>
+    </div>
+
+</div>
+{% endblock %}

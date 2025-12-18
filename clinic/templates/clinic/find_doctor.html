@@ -1,0 +1,103 @@
+{% extends 'clinic/base.html' %}
+
+{% block content %}
+<style>
+    .search-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .search-box {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .search-form {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+
+    .search-select {
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        min-width: 250px;
+        background-color: #f9f9f9;
+    }
+
+    /* Стили списка результатов (похожи на список врачей, но строками) */
+    .result-item {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-left: 5px solid #28a745;
+    }
+
+    @media (max-width: 600px) {
+        .result-item { flex-direction: column; text-align: center; gap: 15px; }
+    }
+</style>
+
+<div class="search-container">
+    <div class="search-box">
+        <h2 style="color: #0056b3;">Запись на прием</h2>
+        <p>Ваш регион обслуживания: <span class="badge" style="background: #e3f2fd; color: #0056b3; padding: 5px 10px; border-radius: 4px; font-weight: bold;">№{{ patient_region }}</span></p>
+        
+        <form method="get" class="search-form">
+            <select name="specialization" class="search-select" required>
+                <option value="">-- Выберите специализацию --</option>
+                {% for spec in specializations %}
+                    <option value="{{ spec }}" {% if spec == selected_spec %}selected{% endif %}>
+                        {{ spec }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-primary">🔍 Найти врачей</button>
+        </form>
+    </div>
+
+    <!-- Результаты -->
+    {% if selected_spec %}
+        <h3 style="margin-bottom: 20px; color: #333;">Результаты поиска: <span style="color: #007bff;">{{ selected_spec }}</span></h3>
+        
+        {% if doctors %}
+            <div>
+                {% for doctor in doctors %}
+                <div class="result-item">
+                    <div>
+                        <div style="font-size: 1.2rem; font-weight: bold;">{{ doctor.full_name }}</div>
+                        <div style="color: gray;">Участок: {{ doctor.region }}</div>
+                    </div>
+                    <a href="{% url 'doctor_booking' doctor.id_doc %}" class="btn btn-success">
+                        Посмотреть свободные окна
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 40px; background: #fff0f0; border-radius: 10px; color: #dc3545;">
+                Врачи данной специальности на вашем участке не найдены.
+            </div>
+        {% endif %}
+        
+    {% endif %}
+
+    <div style="margin-top: 30px;">
+        <a href="{% url 'profile' %}" style="text-decoration: none; color: gray;">← Вернуться в Личный кабинет</a>
+    </div>
+</div>
+{% endblock %}

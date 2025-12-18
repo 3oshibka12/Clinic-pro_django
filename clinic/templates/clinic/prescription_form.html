@@ -1,0 +1,86 @@
+{% extends 'clinic/base.html' %}
+
+{% block content %}
+<style>
+    .prescription-paper {
+        max-width: 700px;
+        margin: 40px auto;
+        background: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .paper-header {
+        background: #28a745; /* Медицинский зеленый */
+        color: white;
+        padding: 20px 30px;
+    }
+    .paper-body {
+        padding: 40px;
+    }
+
+    .info-row {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px dashed #ccc;
+        font-size: 1.1rem;
+    }
+
+    /* Стилизуем стандартную таблицу Django формы */
+    table { width: 100%; border-collapse: separate; border-spacing: 0 15px; }
+    th { text-align: left; width: 30%; color: #555; vertical-align: top; padding-top: 10px; }
+    td { width: 70%; }
+    
+    /* Стилизация инпутов внутри формы */
+    input[type="text"], input[type="number"], select, textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+    
+    .actions {
+        margin-top: 30px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+    }
+</style>
+
+<div class="prescription-paper">
+    <div class="paper-header">
+        <h2 style="margin: 0;">
+            {% if is_edit %} ✏️ Редактирование рецепта {% else %} 💊 Назначение лечения {% endif %}
+        </h2>
+    </div>
+
+    <div class="paper-body">
+        <!-- Информация о пациенте -->
+        <div class="info-row">
+            <strong>Пациент:</strong> {{ appointment.patient.full_name }}
+        </div>
+        <div class="info-row">
+            <strong>Дата приема:</strong> {{ appointment.visit_time|date:"d E Y" }}
+        </div>
+
+        <!-- Сама форма -->
+        <form method="post">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+            </table>
+
+            <div class="actions">
+                <a href="{% url 'profile' %}" class="btn" style="background: #e9ecef; color: #333;">Отмена</a>
+                <button type="submit" class="btn btn-success">
+                    💾 Сохранить назначение
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

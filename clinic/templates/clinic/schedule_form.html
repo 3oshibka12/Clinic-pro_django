@@ -1,0 +1,43 @@
+{% extends 'clinic/base.html' %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 40px auto;">
+    <div style="background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05);">
+        <h2 style="margin-top: 0; color: #0056b3;">📅 Управление графиком</h2>
+        <p style="color: gray; margin-bottom: 20px;">Заполните параметры приема врача.</p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <style>
+                /* Локальные стили для полей формы */
+                .form-table { width: 100%; }
+                .form-table tr { margin-bottom: 15px; display: block; }
+                .form-table th { display: block; text-align: left; margin-bottom: 5px; color: #495057; }
+                .form-table td { display: block; margin-bottom: 15px; }
+                
+                .form-table input, .form-table select {
+                    width: 100%;
+                    padding: 10px;
+                    border: 1px solid #ced4da;
+                    border-radius: 4px;
+                    font-size: 16px;
+                    box-sizing: border-box;
+                }
+                .form-table input:focus { border-color: #007bff; outline: none; }
+                .helptext { font-size: 0.8em; color: gray; }
+            </style>
+
+            <table class="form-table">
+                {{ form.as_table }}
+            </table>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="btn btn-primary" style="flex: 1;">Сохранить график</button>
+                <a href="{% url 'manager_schedules' %}" class="btn" style="background: #e9ecef; color: #333;">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'clinic/base.html' %}
+
+{% block content %}
+<div style="padding: 20px;">
+    <h2>📋 Управление записями на прием</h2>
+    <p>Отображаются все актуальные записи.</p>
+    <hr>
+
+    <table border="1" cellpadding="10" style="width: 100%; border-collapse: collapse; background: white;">
+        <thead style="background: #eee;">
+            <tr>
+                <th>Дата и Время</th>
+                <th>Врач</th>
+                <th>Пациент</th>
+                <th>Кабинет</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appt in appointments %}
+            <tr>
+                <td>
+                    <strong>{{ appt.visit_time|date:"d.m.Y" }}</strong> <br>
+                    {{ appt.visit_time|date:"H:i" }}
+                </td>
+                <td>
+                    {{ appt.doctor.lname }} <br>
+                    <small>{{ appt.doctor.specialization }}</small>
+                </td>
+                <td>{{ appt.patient.full_name }}</td>
+                <td>{{ appt.cabinet }}</td>
+                <td>
+                    <!-- Редактировать -->
+                    <a href="{% url 'edit_appointment_manager' appt.id_rec %}" 
+                       style="background: #ffc107; padding: 5px 10px; border-radius: 4px; text-decoration: none; color: black;">
+                       ✏️ Изменить
+                    </a>
+                    
+                    <!-- Отменить -->
+                    <form action="{% url 'cancel_appointment' appt.id_rec %}" method="post" style="display:inline; margin-left: 5px;" onsubmit="return confirm('Вы уверены? Это действие запишется в историю.');">
+                        {% csrf_token %}
+                        <button type="submit" style="background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">
+                            ❌ Отмена
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">Актуальных записей нет.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <br>
+    <a href="{% url 'profile' %}">← Назад в меню</a>
+</div>
+{% endblock %}

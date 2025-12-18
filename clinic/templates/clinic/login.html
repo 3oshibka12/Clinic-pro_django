@@ -1,0 +1,72 @@
+{% extends 'clinic/base.html' %}
+
+{% block content %}
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh; /* Чтобы было по центру экрана */
+    }
+    .login-card {
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+    }
+    .login-card h2 { margin-bottom: 20px; color: #333; }
+    
+    /* Стили полей ввода */
+    .form-group { margin-bottom: 20px; text-align: left; }
+    .form-group label { display: block; margin-bottom: 5px; color: #666; }
+    .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        box-sizing: border-box; /* Чтобы padding не ломал ширину */
+    }
+    .form-group input:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <h2>Вход в систему</h2>
+        <p style="color: gray; margin-bottom: 30px;">Пожалуйста, авторизуйтесь</p>
+
+        <form method="post">
+            {% csrf_token %}
+            
+            <!-- Если используешь стандартную форму Django -->
+            {% if form.non_field_errors %}
+                <div style="color: red; margin-bottom: 15px;">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="id_username">Логин:</label>
+                <input type="text" name="username" autofocus required id="id_username" placeholder="Введите логин">
+            </div>
+
+            <div class="form-group">
+                <label for="id_password">Пароль:</label>
+                <input type="password" name="password" required id="id_password" placeholder="Введите пароль">
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                Войти
+            </button>
+        </form>
+        
+        <div style="margin-top: 20px; font-size: 0.9em; color: gray;">
+            Нет аккаунта? Обратитесь в регистратуру.
+        </div>
+    </div>
+</div>
+{% endblock %}

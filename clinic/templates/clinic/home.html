@@ -1,0 +1,72 @@
+{% extends 'clinic/base.html' %}
+
+{% block content %}
+<style>
+    /* Стили только для главной страницы */
+    .hero {
+        background: linear-gradient(135deg, #007bff, #00c6ff);
+        color: white;
+        text-align: center;
+        padding: 80px 20px;
+        margin-bottom: 40px;
+    }
+    .hero h1 { font-size: 3rem; margin-bottom: 10px; }
+    .hero p { font-size: 1.2rem; margin-bottom: 30px; opacity: 0.9; }
+    
+    .features {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        max-width: 1200px;
+        margin: 0 auto 60px;
+        flex-wrap: wrap;
+    }
+    .card {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        flex: 1;
+        min-width: 250px;
+        text-align: center;
+        transition: transform 0.3s;
+    }
+    .card:hover { transform: translateY(-5px); }
+    .card-icon { font-size: 3rem; margin-bottom: 15px; }
+</style>
+
+<!-- БАННЕР -->
+<div class="hero">
+    <h1>Ваше здоровье — наш приоритет</h1>
+    <p>Современная медицина, квалифицированные врачи и удобная запись онлайн.</p>
+    
+    {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}" class="btn btn-success" style="font-size: 1.2rem; padding: 15px 40px;">
+            Перейти в Личный кабинет
+        </a>
+    {% else %}
+        <a href="{% url 'login' %}" class="btn" style="background: white; color: #007bff; font-size: 1.2rem; padding: 15px 40px;">
+            Записаться на прием
+        </a>
+    {% endif %}
+</div>
+
+<!-- ПРЕИМУЩЕСТВА -->
+<div class="features">
+    <div class="card">
+        <div class="card-icon">👨‍⚕️</div>
+        <h3>Лучшие врачи</h3>
+        <p>Наши специалисты имеют многолетний опыт и постоянно повышают квалификацию.</p>
+    </div>
+    <div class="card">
+        <div class="card-icon">📅</div>
+        <h3>Онлайн запись</h3>
+        <p>Забудьте об очередях. Выбирайте удобное время и записывайтесь за пару кликов.</p>
+    </div>
+    <div class="card">
+        <div class="card-icon">🔬</div>
+        <h3>Современное оборудование</h3>
+        <p>Мы используем передовые технологии для точной диагностики и лечения.</p>
+    </div>
+</div>
+{% endblock %}

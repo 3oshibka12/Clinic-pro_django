@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Medical Clinic Pro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary: #0056b3; 
+            --accent: #007bff; 
+            --success: #28a745;
+            --light: #f8f9fa;      
+            --dark: #343a40;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            margin-left: 20px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .btn-nav {
+            background: var(--accent);
+            color: var(--white) !important;
+            padding: 8px 18px;
+            border-radius: 20px;
+        }
+
+        .btn-nav:hover {
+            background: var(--primary);
+        }
+
+        main {
+            flex: 1;
+            padding-bottom: 40px;
+        }
+
+        footer {
+            background: var(--dark);
+            color: var(--white);
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 25px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--accent); color: var(--white); }
+        .btn-success { background: var(--success); color: var(--white); }
+        .btn-outline { border: 2px solid var(--accent); color: var(--accent); background: transparent; }
+        .btn-outline:hover { background: var(--accent); color: var(--white); }
+
+        .messages {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            color: white;
+        }
+        .success { background-color: var(--success); }
+        .error { background-color: #dc3545; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <nav>
+            <a href="{% url 'home' %}" class="logo">
+                🏥 ClinicPro
+            </a>
+            <div class="nav-links">
+                <a href="{% url 'home' %}">Главная</a>
+                <a href="{% url 'doctor_list' %}">Наши врачи</a>
+                
+                {% if user.is_authenticated %}
+                    <a href="{% url 'profile' %}"> Личный кабинет</a>
+                    <a href="{% url 'logout' %}" style="color: #dc3545;">Выйти</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn-nav">Войти</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+            <div class="alert {{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 ClinicPro. Забота о вашем здоровье.</p>
+    </footer>
+
+</body>
+</html>
