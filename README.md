@@ -59,3 +59,8 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
 ```
+---
+
+# **ER-диаграмма**
+
+![alt text](image.png)
