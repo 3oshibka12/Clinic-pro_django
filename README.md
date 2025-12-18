@@ -25,3 +25,37 @@
    - **Middleware:** Переключение ролей PostgreSQL (`SET ROLE`) в рамках одной сессии Django.
    - **Triggers:** Автоматическое логирование изменений записей в таблицу истории.
    - **SQL Views:** Формирование сложных отчетов на стороне БД.
+
+---
+
+## Установка и запуск
+
+**Клонирование репозитория:**
+```bash
+git clone https://github.com/3oshibka12/Clinic-pro_django
+cd clinic-pro
+```
+**Создание виртуального окружения:**
+
+```bash
+python -m venv venv
+source venv/bin/activate
+```  
+**Установка зависимостей:**
+
+```bash
+pip install -r requirements.txt
+```
+
+**Настройка Базы Данных:**
+
+- Создайте базу данных в PostgreSQL.
+- Выполните SQL-скрипты из папки scripts_db (создание ролей, политик RLS, триггеров).
+- Настройте settings.py.
+
+**Миграции и запуск:**
+
+```bash
+python manage.py migrate
+python manage.py runserver
+```

@@ -1,0 +1,7 @@
+asarPy==1.0.1
+asgiref==3.10.0
+Django==5.2.8
+Faker==38.2.0
+psycopg2-binary==2.9.11
+sqlparse==0.5.3
+tzdata==2025.2
