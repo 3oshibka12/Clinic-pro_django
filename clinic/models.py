@@ -31,6 +31,12 @@ class Patient(models.Model):
     birth_date = models.DateField("Дата рождения")
     region = models.IntegerField("Регион")
 
+    email = models.EmailField(
+        "Email пациента", 
+        max_length=254, 
+        default='lasenkob213@gmail.com'
+    )
+
     user = models.OneToOneField(
         User,
         on_delete=models.SET_NULL,

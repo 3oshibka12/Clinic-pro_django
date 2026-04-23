@@ -1,0 +1,161 @@
+openapi: 3.0.0
+info:
+  title: API генератора PDF-файлов
+  description: |
+    Генератор справок, направлений и рецептов в виде 
+    PDF-файлов
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8020
+    description: Локальный сервер для разработки
+
+# Основные эндпоинты
+paths:
+  # 1. GET - получить список доступных справок
+  /serteficates/{id}:
+    get:
+      summary: Список доступных справок
+      description: Возвращает массив доступных справок
+      responses:
+        '200':
+          description: Успешный ответ
+          content:
+            application/json:
+              schema:
+                type: array
+
+  # 2. GET /document/certificate/{id} - получить справку в формате PDF
+  /document/certificate/{id}:
+    get:
+      summary: Получить справку по ID приёма
+      parameters:
+        - name: appointment's ID
+          in: path
+          required: true
+          description: ID приёма у врача
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Создание справки в PDF формате
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Приём не найден
+          $ref: '#/components/responses/NotFound'
+
+  /document/recipe/{id}:
+    post:
+      summary: Получить рецепт по ID
+      parameters:
+        - name: appointment's ID
+          in: path
+          required: true
+          description: ID рецепта
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Создание справки в PDF формате
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Приём не найден
+          $ref: '#/components/responses/NotFound'
+
+  /document/refer/{id}:
+    get:
+      summary: Получить направление по ID приёма
+      parameters:
+        - name: appointment's ID
+          in: path
+          required: true
+          description: ID приёма у врача
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Создание справки в PDF формате
+          content:
+            application/json:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Приём не найден
+          $ref: '#/components/responses/NotFound'
+
+components:
+  # Модели данных
+  schemas:
+    recipe:
+      type: object
+      description: Рецепт
+      properties:
+        id:
+          type: integer
+          description: Уникальный идентификатор
+          example: 42
+        text:
+          type: string
+          description: Список препаратов
+          example: "Мазь 'звёздочка', нозальные капли 'риностоп' взрослые"
+        doctor:
+          type: integer
+          description: Уникальный идентификатор доктора
+          example: 42
+        pacient:
+          type: integer
+          description: Уникальный идентификатор пациента
+          example: 42
+        date:
+          type: string
+          description: Дата выписки рецепта в формате DD-MM-YYYY
+          example: 12-12-2000
+        
+
+      required:
+        - id
+        - text
+        - doctor
+        - pacient
+        - date
+
+  # Переиспользуемые ответы с ошибками
+  responses:
+    BadRequest:
+      description: Ошибка в запросе
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Некорректные данные"
+              code:
+                type: integer
+                example: 400
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+                example: "Рецепт не найден"
+              code:
+                type: integer
+                example: 404

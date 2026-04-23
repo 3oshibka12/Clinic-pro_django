@@ -7,8 +7,9 @@ from django.utils import timezone
 from datetime import datetime, timedelta
 
 from .models import Doctor, Schedule, Patient, Appointment, DoctorFutureAppointmentView, DoctorPastAppointmentView, PatientHistoryView, AnalystStatsView, AnalystStatsView
-from .forms import ScheduleForm, PrescriptionForm
+from .forms import ScheduleForm, PrescriptionForm, AppointmentEditForm
 
+from .services import send_appointment_confirmation, request_prescription_generation
 # --- 1. Публичные страницы (доступны всем) ---
 
 def home_page(request):
@@ -233,6 +234,19 @@ def doctor_booking(request, doctor_pk):
                 visit_time=full_visit_time,
                 cabinet=100
             )
+            #!!!!!!
+            print(f"DEBUG: Запись создана, пытаюсь вызвать сервис для {patient.email}") # ДОБАВЬ ЭТО
+            if patient.user and patient.email:
+                print(f"DEBUG: Запись создана, пытаюсь вызвать сервис для {patient.email}") # ДОБАВЬ ЭТО
+
+                send_appointment_confirmation(
+                    email=patient.email,
+                    patient_name=patient.full_name,
+                    doctor_name=doctor.full_name,
+                    visit_time=full_visit_time,
+                    cabinet=100
+                )
+            #!!!!!!
             messages.success(request, f"Вы записаны к {doctor.full_name} на {visit_date_str} {visit_time_str}")
             return redirect('profile')
         else:
@@ -302,7 +316,14 @@ def add_prescription(request, appointment_pk):
             new_presc = form.save(commit=False)
             new_presc.id_rec = appointment # Привязываем к записи
             new_presc.save()
-            
+            #!!!!!
+            if appointment.patient.user and appointment.patient.email:
+                request_prescription_generation(
+                    appointment_id=appointment.id_rec,
+                    patient_email=appointment.patient.email,
+                    doc_type="recipe"
+                )
+            #!!!!!!!!
             action = "обновлен" if prescription else "создан"
             messages.success(request, f"Рецепт успешно {action}.")
             return redirect('profile')

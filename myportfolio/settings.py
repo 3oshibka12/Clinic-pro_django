@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -85,9 +85,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'clinic',
         'USER': 'bog',
-        'PASSWORD': '391440',
-        'HOST': '127.0.0.1',
-        'PORT': '5432'
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'password'), 
+        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     },
     # 'doctor_db': {  # Подключение от лица врача
     #     'ENGINE': 'django.db.backends.postgresql',
@@ -160,6 +160,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+import os
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -1,0 +1,89 @@
+services:
+  # 1. ОБЩАЯ БАЗА ДАННЫХ
+  postgres:
+    image: postgres:15
+    container_name: clinic_postgres
+    environment:
+      POSTGRES_DB: clinic
+      POSTGRES_USER: bog
+      POSTGRES_PASSWORD: 391440  # Твой пароль
+      POSTGRES_INITDB_ARGS: --encoding=UTF-8
+    ports:
+      - "5433:5432"  # Снаружи 5433 (для DBeaver/pgAdmin), внутри 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - clinic_net
+    restart: unless-stopped
+
+  # 2. BROKER (RabbitMQ)
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: clinic_rabbitmq
+    ports:
+      - "5672:5672"   # Для скриптов
+      - "15672:15672" # Для браузера (панель управления)
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: secret
+    networks:
+      - clinic_net
+    restart: unless-stopped
+
+  # 3. DJANGO (МОНОЛИТ)
+  django_app:
+    build: .  # Строит образ из текущей папки (где лежит этот docker-compose.yml)
+    container_name: clinic_django
+    ports:
+      - "8080:8080" # Твой сайт будет доступен на http://localhost:8080
+    environment:
+      # Django будет подключаться к контейнеру postgres
+      - DB_HOST=postgres 
+      - DB_PORT=5432
+      - DB_PASSWORD=391440
+      - DATABASE_URL=postgres://bog:391440@postgres:5432/clinic
+      - NOTIFY_SERVICE_URL=http://notify_service:8000 # Адрес микросервиса для запросов
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app  # Чтобы код обновлялся "на лету" без пересборки контейнера
+    networks:
+      - clinic_net
+    restart: unless-stopped
+
+  # 4. ТВОЙ СЕРВИС (Notify + Worker)
+  notify_service:
+    build: ./notify_service # Ищет Dockerfile внутри этой папки
+    container_name: clinic_notify
+    ports:
+      - "8000:8000" # Твой Swagger будет на http://localhost:8000/docs
+    environment:
+      - DATABASE_URL=postgresql://bog:391440@postgres:5432/clinic
+      - RABBITMQ_URL=amqp://admin:secret@rabbitmq:5672/
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - clinic_net
+    restart: unless-stopped
+
+  # 5. СЕРВИС КОЛЛЕГИ (PDF Generator Worker)
+  pdf_service:
+    build: ./pdf_service # Ищет Dockerfile внутри этой папки
+    container_name: clinic_pdf
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://bog:391440@postgres:5432/clinic
+      - RABBITMQ_URL=amqp://admin:secret@rabbitmq:5672/
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - clinic_net
+    restart: unless-stopped
+
+networks:
+  clinic_net:
+    driver: bridge
+
+volumes:
+  postgres_data:

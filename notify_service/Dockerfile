@@ -1,0 +1,11 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+# Запускаем worker в фоне (&), а uvicorn на переднем плане
+CMD ["sh", "-c", "python worker.py & uvicorn main:app --host 0.0.0.0 --port 8000"]
