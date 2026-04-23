@@ -1,21 +1,21 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from datetime import datetime
 
 
 class AppointmentInfoCreate(BaseModel):
-    email: str
+    email: EmailStr
     patient_name: str
     doctor_name: str
     visit_time: str
     cabinet: int
 
 class ReminderCreate(BaseModel):
-    email: str
+    email: EmailStr
     message: str
 
 class PrescriptionRequest(BaseModel):
     appointment_id: int
-    email: str
+    email: EmailStr
     doc_type: str = "recipe"
 
 

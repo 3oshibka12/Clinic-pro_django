@@ -7,3 +7,9 @@ python-dotenv
 pydantic
 fastapi-mail
 pika
+
+pytest
+httpx
+pytest-asyncio
+
+pydantic[email]

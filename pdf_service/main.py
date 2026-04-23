@@ -10,6 +10,21 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from pdf_generator import generate_recipe_pdf, generate_certificate_pdf, generate_referral_pdf
 
+from fastapi import FastAPI
+import uvicorn
+import threading
+
+app = FastAPI()
+
+@app.get("/")
+def health_check():
+    return {"status": "ok", "service": "pdf-generator-worker"}
+
+def run_fastapi():
+    # Запускаем на порту 8020
+    uvicorn.run(app, host="0.0.0.0", port=8020)
+
+
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://bog:password@postgres:5432/clinic")
 
 async def process_pdf_async(msg):
@@ -96,7 +111,10 @@ def handle_generate_pdf(msg):
     asyncio.run(process_pdf_async(msg))
 
 if __name__ == "__main__":
-    print("🚀 PDF Generator запущен...", flush=True)
+    # Запускаем веб-сервер для Health Check в отдельном потоке
+    threading.Thread(target=run_fastapi, daemon=True).start()
+    
+    print("🚀 PDF Generator запущен (Worker + Health API)...", flush=True)
     consume("pdf", {
         "generate_pdf": handle_generate_pdf
     })
