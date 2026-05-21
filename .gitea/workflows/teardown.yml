@@ -1,0 +1,14 @@
+name: Teardown
+
+on:
+  workflow_dispatch:
+
+jobs:
+  stop-and-clean:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Stop All Containers
+        run: docker compose -f docker-compose.prod.yml down

@@ -1,0 +1,38 @@
+name: Deploy and Check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Gitea Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: git.klsh.ru
+          username: team2
+          password: ${{ secrets.RUNNER_TOKEN }}
+
+      - name: Pull latest images
+        run: docker compose -f docker-compose.prod.yml pull
+
+      - name: Start All Containers
+        run: docker compose -f docker-compose.prod.yml up -d
+
+      - name: Wait for services to start
+        run: sleep 10
+
+      - name: Check Django Monolith Health
+        run: |
+          # Проверяем, что Django отвечает кодом 200 или 302 на порту 8002
+          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8002/)
+          if [ "$status_code" -eq 200 ] || [ "$status_code" -eq 302 ]; then
+            echo "Django Monolith responded successfully on port 8002 with status $status_code!"
+          else
+            echo "Django failed to respond! Status code: $status_code"
+            exit 1
+          fi

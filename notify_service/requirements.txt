@@ -13,3 +13,4 @@ httpx
 pytest-asyncio
 
 pydantic[email]
+prometheus-client

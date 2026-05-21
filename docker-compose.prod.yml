@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # 1. БАЗА ДАННЫХ
+  postgres:
+    image: postgres:15
+    container_name: team2_postgres_prod
+    environment:
+      POSTGRES_DB: clinic
+      POSTGRES_USER: bog
+      POSTGRES_PASSWORD: 391440
+    volumes:
+      - team2_postgres_data:/var/lib/postgresql/data # <-- Данные теперь в безопасности!
+    networks:
+      - clinic_prod_net
+    restart: always
+
+  # 2. RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: team2_rabbitmq_prod
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: secret
+    networks:
+      - clinic_prod_net
+    restart: always
+
+  # 3. DJANGO
+  django_app:
+    image: git.klsh.ru/team2/project-clinic:django
+    container_name: team2_django_prod
+    ports:
+      - "8002:8080"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_PASSWORD=391440
+      - DATABASE_URL=postgres://bog:391440@postgres:5432/clinic
+      - NOTIFY_SERVICE_URL=http://notify_service:8000
+    depends_on:
+      - postgres
+    networks:
+      - clinic_prod_net
+    restart: always
+
+  # 4. Notify
+  notify_service:
+    image: git.klsh.ru/team2/project-clinic:notify
+    container_name: team2_notify_prod
+    environment:
+      - DATABASE_URL=postgresql://bog:391440@postgres:5432/clinic
+      - RABBITMQ_URL=amqp://admin:secret@rabbitmq:5672/
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - clinic_prod_net
+    restart: always
+
+  # 5. PDF Generator
+  pdf_service:
+    image: git.klsh.ru/team2/project-clinic:pdf
+    container_name: team2_pdf_prod
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://bog:391440@postgres:5432/clinic
+      - RABBITMQ_URL=amqp://admin:secret@rabbitmq:5672/
+    depends_on:
+      - postgres
+      - rabbitmq
+    networks:
+      - clinic_prod_net
+    restart: always
+
+networks:
+  clinic_prod_net:
+    driver: bridge
+
+volumes:
+  team2_postgres_data:

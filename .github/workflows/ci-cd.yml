@@ -74,4 +74,4 @@ jobs:
     steps:
       - name: Deploy (ph)
         run: |
-          echo "деплой версии ${{ github.sha }}"
+          echo "деплой коммита ${{ github.sha }}"
