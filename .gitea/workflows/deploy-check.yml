@@ -31,11 +31,18 @@ jobs:
 
       - name: Check Django Monolith Health
         run: |
-          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8080/)
+          # Возвращаем проверку снаружи контейнера (127.0.0.1:8002)
+          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/)
           if [ "$status_code" -eq 200 ] || [ "$status_code" -eq 302 ] || [ "$status_code" -eq 401 ]; then
             echo "Django Monolith responded successfully with status $status_code!"
           else
             echo "Django failed! Status code: $status_code"
-            docker logs team2_django_prod
             exit 1
           fi
+
+      - name: Print Django Logs on Failure
+        if: failure()
+        run: |
+          echo "================ ЛОГИ КОНТЕЙНЕРА DJANGO ================"
+          docker logs team2_django_prod
+          echo "========================================================"
