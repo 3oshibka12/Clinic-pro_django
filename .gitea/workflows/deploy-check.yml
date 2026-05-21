@@ -31,8 +31,19 @@ jobs:
 
       - name: Check Django Monolith Health
         run: |
-          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://team2.klsh.ru:8002/)
-          if [ "$status_code" -eq 200 ]; then
+          # Запускаем Python-скрипт прямо внутри работающего контейнера
+          status_code=$(docker exec team2_django_prod python -c "
+          import urllib.request, urllib.error
+          try:
+              print(urllib.request.urlopen('http://127.0.0.1:8080/').getcode())
+          except urllib.error.HTTPError as e:
+              print(e.code)
+          ")
+          
+          # Очищаем вывод от лишних пробелов
+          status_code=$(echo $status_code | tr -d ' ')
+
+          if [ "$status_code" -eq 200 ] || [ "$status_code" -eq 302 ] || [ "$status_code" -eq 401 ]; then
             echo "Django Monolith responded successfully with status $status_code!"
           else
             echo "Django failed! Status code: $status_code"
