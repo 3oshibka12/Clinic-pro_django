@@ -28,8 +28,7 @@ jobs:
 
       - name: Check Django Monolith Health
         run: |
-          # Проверяем, что Django отвечает кодом 200 или 302 на порту 8002
-          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8002/)
+          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://team2.klsh.ru/8002)
           if [ "$status_code" -eq 200 ] || [ "$status_code" -eq 302 ]; then
             echo "Django Monolith responded successfully on port 8002 with status $status_code!"
           else

@@ -11,3 +11,5 @@ REQUEST_LATENCY = Histogram(
     'HTTP request latency',
     ['method', 'endpoint']
 )
+
+
