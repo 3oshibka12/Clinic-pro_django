@@ -433,3 +433,63 @@ def delete_schedule(request, pk):
         get_object_or_404(Schedule, pk=pk).delete()
         messages.success(request, "Пункт расписания удален.")
     return redirect('manager_schedules')
+
+
+
+
+# --- 6. Запрос PDF для записи ---
+
+import requests
+from django.conf import settings
+
+@login_required
+def request_pdf_document(request, pk):
+    """Отправка запроса в микросервис для генерации PDF (Рецепт/Справка)"""
+    if request.method != 'POST':
+        return redirect('patient_history')
+
+    # Проверяем, что это пациент
+    if not hasattr(request.user, 'patient'):
+        messages.error(request, "Только пациенты могут запрашивать документы.")
+        return redirect('profile')
+
+    # Получаем тип документа из скрытого поля формы
+    doc_type = request.POST.get('doc_type')
+    
+    if doc_type not in ['recipe', 'certificate', 'referral']:
+        messages.error(request, "Неизвестный тип документа.")
+        return redirect('patient_history')
+
+    # Получаем саму запись из базы (проверяем, что она принадлежит этому пациенту)
+    appointment = get_object_or_404(Appointment, pk=pk, patient=request.user.patient)
+
+    # Двойная защита: проверяем, что прием уже прошел
+    if appointment.visit_time >= timezone.now():
+        messages.error(request, "Прием еще не завершен. Документы недоступны.")
+        return redirect('profile')
+
+    # Формируем Payload для FastAPI микросервиса
+    payload = {
+        "appointment_id": appointment.pk,
+        "email": request.user.email,
+        "doc_type": doc_type
+    }
+
+    # URL твоего микросервиса (берется из docker-compose, а если его нет - ставит localhost)
+    notify_url = f"{getattr(settings, 'NOTIFY_SERVICE_URL', 'http://notify_service:8000')}/request-prescription"
+
+    try:
+        # Делаем POST запрос в твой микросервис (timeout=3 чтобы сайт не завис, если микросервис упал)
+        response = requests.post(notify_url, json=payload, timeout=3)
+        
+        if response.status_code == 202: # Как у тебя написано в FastAPI (status_code=202)
+            messages.success(request, f"Запрос отправлен! Документ будет выслан на {request.user.email}")
+        else:
+            print(f"FASTAPI 422 ERROR: {response.text}")
+            messages.error(request, "Ошибка на стороне микросервиса. Попробуйте позже.")
+            
+    except requests.exceptions.RequestException as e:
+        print(f"Ошибка связи с notify_service: {e}")
+        messages.error(request, "Сервис уведомлений временно недоступен.")
+
+    return redirect('patient_history')

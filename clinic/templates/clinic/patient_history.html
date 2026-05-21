@@ -52,6 +52,38 @@
                             </tr>
                             {% endif %}
                         </table>
+                                                <!-- КНОПКИ ЗАПРОСА PDF (МИКРОСЕРВИСЫ) -->
+                        <hr style="margin: 15px 0; border-top: 1px dashed #ddd;">
+                        <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                            
+                            <!-- Кнопка 1: Рецепт -->
+                            <form action="{% url 'request_pdf' appt.id_rec %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="doc_type" value="recipe">
+                                <button type="submit" style="background: #e3f2fd; color: #0056b3; border: 1px solid #b8daff; padding: 6px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: bold; transition: 0.2s;">
+                                    💊 Получить рецепт
+                                </button>
+                            </form>
+
+                            <!-- Кнопка 2: Справка (Certificate) -->
+                            <form action="{% url 'request_pdf' appt.id_rec %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="doc_type" value="certificate">
+                                <button type="submit" style="background: #e8f5e9; color: #28a745; border: 1px solid #c3e6cb; padding: 6px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: bold; transition: 0.2s;">
+                                    🩺 Запросить справку
+                                </button>
+                            </form>
+
+                            <!-- Кнопка 3: Направление (Referral) -->
+                            <form action="{% url 'request_pdf' appt.id_rec %}" method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="doc_type" value="referral">
+                                <button type="submit" style="background: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 6px 15px; border-radius: 5px; cursor: pointer; font-size: 0.9em; font-weight: bold; transition: 0.2s;">
+                                    📝 Направление
+                                </button>
+                            </form>
+
+                        </div>
                     {% else %}
                         <p style="color: gray; margin: 0;">Врач не оставил записей о лечении в системе.</p>
                     {% endif %}

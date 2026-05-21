@@ -41,4 +41,6 @@ urlpatterns = [
     # Истории для пользователей
     path('patient/history/', views.patient_history_view, name='patient_history'),
     path('doctor/calendar/', views.doctor_calendar_view, name='doctor_calendar'),
+
+    path('appointment/<int:pk>/request-pdf/', views.request_pdf_document, name='request_pdf'),
 ]
