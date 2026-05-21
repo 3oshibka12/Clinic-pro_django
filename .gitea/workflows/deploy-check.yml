@@ -32,7 +32,7 @@ jobs:
       - name: Check Django Monolith Health
         run: |
           # Возвращаем проверку снаружи контейнера (127.0.0.1:8002)
-          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8002/)
+          status_code=$(curl -s -o /dev/null -w "%{http_code}" http://0.0.0.0:8080/)
           if [ "$status_code" -eq 200 ] || [ "$status_code" -eq 302 ] || [ "$status_code" -eq 401 ]; then
             echo "Django Monolith responded successfully with status $status_code!"
           else
