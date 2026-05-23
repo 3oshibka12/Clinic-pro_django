@@ -1,9 +1,8 @@
+import base64, asyncio, os
 from tempfile import NamedTemporaryFile
 from rabbit import publish, consume
 from email_sender import send_email_async
-import asyncio
-import base64
-import os
+
 
 
 def handle_process(msg):

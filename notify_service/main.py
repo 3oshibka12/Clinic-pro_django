@@ -2,13 +2,17 @@ from sqlalchemy.orm import Session
 from datetime import datetime
 from app import schemas, models
 from app.database import get_db, engine
+import os
+import base64
+from tempfile import NamedTemporaryFile
 from fastapi import FastAPI, Depends, HTTPException, BackgroundTasks
+from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
 from email_sender import send_email_async
-from rabbit import publish
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Clinic Notification Service")
+
 
 @app.get("/")
 def root():
@@ -69,6 +73,13 @@ def send_reminder(letter: schemas.ReminderCreate, bd: BackgroundTasks, db: Sessi
     bd.add_task(send_email_async, "Напоминание о приеме", letter.email, f"<p>{letter.message}</p>")
 
     return db_notification
+
+
+
+
+
+
+from rabbit import publish
 
 @app.post("/request-prescription", status_code=202)
 def request_prescription(

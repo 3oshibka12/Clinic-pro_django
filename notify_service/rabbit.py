@@ -1,7 +1,4 @@
-import os
-import pika
-import time
-import json
+import pika, json, os, time
 
 RABBITMQ_URL = os.getenv("RABBITMQ_URL", "amqp://guest:guest@rabbitmq:5672/")
 QUEUE = "main_queue"
@@ -11,7 +8,7 @@ def get_connection():
     for i in range(10):
         try:
             return pika.BlockingConnection(pika.URLParameters(RABBITMQ_URL + "?heartbeat=0"))
-        except pika.exceptions.AMQPConnectionError:
+        except:
             print(f"RabbitMQ не готов ({i+1}/10)...")
             time.sleep(3)
     raise Exception("RabbitMQ недоступен")
@@ -22,6 +19,7 @@ def publish(data: dict):
     Отправляет сообщение в очередь. 
     Принимает один аргумент - словарь с данными.
     """
+    # Достаем имя очереди из словаря
     queue_name = data.get("target")
     if not queue_name:
         print("[RabbitMQ] ❌ Ошибка: в данных нет ключа 'target'")
@@ -31,6 +29,7 @@ def publish(data: dict):
     channel = connection.channel()
     channel.queue_declare(queue=queue_name, durable=True)
 
+    import json
     channel.basic_publish(
         exchange='',
         routing_key=queue_name,
@@ -48,8 +47,11 @@ def consume(queue_name: str, handlers: dict):
     channel.queue_declare(queue=queue_name, durable=True)
 
     def callback(ch, method, properties, body):
+        # --- ДОБАВЬ ЭТУ СТРОКУ ДЛЯ ПРОВЕРКИ ---
         print(f"!!! [BROKER] К нам прилетело сообщение в очередь '{queue_name}' !!!", flush=True)
+        # --------------------------------------
         
+        import json
         msg = json.loads(body)
         action = msg.get("action")
         
