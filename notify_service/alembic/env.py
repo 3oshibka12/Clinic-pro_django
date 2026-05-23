@@ -15,7 +15,6 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 
 from app.database import Base
-from app.models import Notification  # импортируем все модели, которые должны участвовать в миграциях
 
 
 
