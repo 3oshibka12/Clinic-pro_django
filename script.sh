@@ -1,0 +1,1 @@
+find . -type f \( -name "*.py" -o -name "*.yml" -o -name "*.env" \) -print0 | while IFS= read -r -d '' file; do printf '%s - ' >> ans.txt "$file"; cat "$file" >> ans.txt; echo; done

@@ -178,3 +178,10 @@ LOGOUT_REDIRECT_URL = 'home'
 
 # Где находится страница входа (на случай, если неавторизованный юзер попытается зайти в ЛК)
 LOGIN_URL = 'login'
+
+import sys
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }

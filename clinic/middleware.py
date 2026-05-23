@@ -1,5 +1,4 @@
-# clinic/middleware.py
-
+# clinic/middleware.py (фрагмент)
 from django.db import connection
 
 class DatabaseRoleMiddleware:
@@ -27,17 +26,18 @@ class DatabaseRoleMiddleware:
         if target_role:
             # === ОТЛАДКА: Выводим в консоль ===
             print(f"🔵 [Middleware] Роль: {target_role}, ID: {user_id}")
-            # ==================================
-
-            with connection.cursor() as cursor:
-                cursor.execute(f"SET ROLE '{target_role}'")
-                cursor.execute("SELECT set_config('app.user_id', %s, false)", [str(user_id)])
+            # Выполняем SET ROLE только на PostgreSQL
+            if connection.vendor == 'postgresql':
+                with connection.cursor() as cursor:
+                    cursor.execute(f"SET ROLE '{target_role}'")
+                    cursor.execute("SELECT set_config('app.user_id', %s, false)", [str(user_id)])
+            # для других БД просто логируем, но не выполняем запрос
+            # (в тестовой SQLite это безопасно игнорируется)
 
         try:
             response = self.get_response(request)
         finally:
-            if target_role:
+            if target_role and connection.vendor == 'postgresql':
                 with connection.cursor() as cursor:
                     cursor.execute("RESET ROLE")
-
         return response

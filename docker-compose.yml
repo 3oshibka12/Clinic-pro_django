@@ -80,6 +80,8 @@ services:
     networks:
       - clinic_net
     restart: unless-stopped
+    ports:
+      - "8020:8020"
 
 networks:
   clinic_net:
